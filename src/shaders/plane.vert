@@ -6,6 +6,8 @@ uniform mat4 modelMatrix;
 attribute vec3 position;
 attribute vec3 normal;
 attribute vec2 uv;
+attribute float extent;
+
 
 uniform float uTime;
 uniform float uNoiseScale;
@@ -16,6 +18,7 @@ uniform float uValue2;
 varying vec2 vUv;
 varying vec3 vNormal;
 varying float vRad;
+varying float vExtent;
 
 // Some useful functions
 vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -106,10 +109,12 @@ void main()
     // modelPos.xyz += normal * elevation;
     modelPos.z = elevation;
     modelPos.z *= rad * 3.;
-    
-    modelPos.xy *= sin(ang * 10. * uValue2 + uTime) * .3 + 1.0;
-    modelPos.xy *= rotate2d(rad * 3.);
+    modelPos.z *= 1. + extent;
 
+    // modelPos.z -= extent * .5;
+    
+    modelPos.xy *= sin(ang * 10. * uValue2 + uTime) * .3 + 1.0 + extent;
+    modelPos.xy *= rotate2d(rad * 3.);
     modelPos.xy *= sin(uTime * rad * 5. * uValue1) + 1.0;
 
 
@@ -118,4 +123,5 @@ void main()
     vUv = uv;
     vNormal = normal;
     vRad = rad;
+    vExtent = extent;
 }
