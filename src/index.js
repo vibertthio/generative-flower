@@ -2,11 +2,12 @@
 
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+
 import * as dat from 'dat.gui'
 
 const RESOLUTION = 128
 
-console.log(THREE.REVISION)
+console.log('THREE version', THREE.REVISION)
 const gui = new dat.GUI()
 
 // Create renderer.
@@ -31,6 +32,7 @@ camera.position.z = -1
 scene.add(camera)
 
 // Add mouse controls for camera.
+
 const controls = new OrbitControls(camera, canvas)
 controls.enableDamping = true
 
@@ -100,8 +102,6 @@ const tick = () => {
   // group.rotation.x += 0.01;
   // group.rotation.y += 0.02;
 
-  controls.update()
-
   renderer.render(scene, camera)
 
   requestAnimationFrame(tick)
@@ -120,16 +120,27 @@ window.addEventListener('resize', () => {
 const raycaster = new THREE.Raycaster()
 const mouse = new THREE.Vector2()
 
-window.addEventListener('mousemove', (event) => {
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
+moveEventHandler = (e) => {
+  let cX
+  let cY
+  let touch = false
+  if (e.touches && e.touches.length > 0) {
+    touch = true
+    cX = e.touches[0].clientX
+    cY = e.touches[0].clientY
+  } else {
+    cX = e.clientX
+    cY = e.clientY
+  }
+
+  mouse.x = (cX / window.innerWidth) * 2 - 1
+  mouse.y = -(cY / window.innerHeight) * 2 + 1
 
   raycaster.setFromCamera(mouse, camera)
 
   const intersect = raycaster.intersectObject(planeMesh)
   if (intersect != null && intersect.length > 0) {
     const nearestHit = intersect[0]
-
     if (nearestHit.face != null) {
       const vert0 = nearestHit.face.a
       const vert1 = nearestHit.face.b
@@ -141,4 +152,6 @@ window.addEventListener('mousemove', (event) => {
       planeGeo.attributes.extent.needsUpdate = true
     }
   }
-})
+}
+window.addEventListener('mousemove', moveEventHandler)
+window.addEventListener('touchmove', moveEventHandler)
